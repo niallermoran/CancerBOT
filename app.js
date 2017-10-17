@@ -6,7 +6,7 @@ var restify = require('restify');
 var builder = require('botbuilder');
 var builder_cognitiveservices = require("botbuilder-cognitiveservices");
 
-// Setup Restify Server
+// Setup Restify Server to run the bot application app.js
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
    console.log('%s listening to %s', server.name, server.url); 
@@ -23,20 +23,20 @@ var connector = new builder.ChatConnector({
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
-/*----------------------------------------------------------------------------------------
-* Bot Storage: This is a great spot to register the private state storage for your bot. 
-* We provide adapters for Azure Table, CosmosDb, SQL Azure, or you can implement your own!
-* For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
-* ---------------------------------------------------------------------------------------- */
+
+var qnarecognizer = new builder_cognitiveservices.QnAMakerRecognizer({knowledgeBaseId: process.env.QnAKnowledgebaseId, subscriptionKey: process.env.QnASubscriptionKey});
+
+// *************************************************** QnAMaker********************************* //
 
 // Create your bot with a function to receive messages from the user
 var bot = new builder.UniversalBot(connector);
+
 
 var recognizer = new builder_cognitiveservices.QnAMakerRecognizer({knowledgeBaseId: process.env.QnAKnowledgebaseId, subscriptionKey: process.env.QnASubscriptionKey});
 
 var basicQnAMakerDialog = new builder_cognitiveservices.QnAMakerDialog({
     recognizers: [recognizer],
-    defaultMessage: 'So sorry, but I do not understand the question. For all information please checkout the website at www.cancer.ie',
+    defaultMessage: 'So sorry, but I do not understand the question. For all information please checkout the website at www.cancer.ie, or try rephrasing your question',
                 qnaThreshold: 0.3}
 );
 
